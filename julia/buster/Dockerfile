@@ -75,4 +75,4 @@ RUN pip3 install jupyter
 
 EXPOSE 8888
 
-CMD ["julia"]
+CMD ["jupyter", "notebook", "--no-browser", "--ip=0.0.0.0", "--port=8888", "--allow-root"]
