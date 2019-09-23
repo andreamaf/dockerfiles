@@ -2,6 +2,10 @@ version: '3'
 
 services:
   notebook:
+    build: .
+    volumes:
+      - .:/notebooks
+    working_dir: /notebooks
     image: "julia-notebook"
     ports:
       - "8888:8888"
