@@ -1,4 +1,4 @@
-FROM python:3.7.4-slim-buster
+FROM python:3.8-slim-buster
 
 RUN set -eux; \
 	apt-get update; \
@@ -32,8 +32,7 @@ RUN set -eux; \
 	fi; \
 	\
 # https://julialang.org/downloads/#julia-command-line-version
-# https://julialang-s3.julialang.org/bin/checksums/julia-1.3.0-rc1.sha256
-# this "case" statement is generated via "update.sh"
+# https://julialang-s3.julialang.org/bin/checksums/julia-1.3.0-rc2.sha256
 	dpkgArch="$(dpkg --print-architecture)"; \
 	case "${dpkgArch##*-}" in \
 # amd64
