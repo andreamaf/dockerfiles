@@ -1,1 +1,2 @@
 # dockerfiles
+docker-compose up
