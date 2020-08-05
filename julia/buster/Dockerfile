@@ -1,5 +1,6 @@
 FROM python:3.8-slim-buster
 
+
 RUN set -eux; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
@@ -17,7 +18,7 @@ ENV PATH $JULIA_PATH/bin:$PATH
 ENV JULIA_GPG 3673DF529D9049477F76B37566E3C7DC03D6E495
 
 # https://julialang.org/downloads/
-ENV JULIA_VERSION 1.3.0-rc2
+ENV JULIA_VERSION 1.5.0
 
 RUN set -eux; \
 	\
@@ -32,18 +33,17 @@ RUN set -eux; \
 	fi; \
 	\
 # https://julialang.org/downloads/#julia-command-line-version
-# https://julialang-s3.julialang.org/bin/checksums/julia-1.3.0-rc2.sha256
+# https://julialang-s3.julialang.org/bin/checksums/julia-1.5.0.sha256
+# this "case" statement is generated via "update.sh"
 	dpkgArch="$(dpkg --print-architecture)"; \
 	case "${dpkgArch##*-}" in \
 # amd64
-                amd64) tarArch='x86_64'; dirArch='x64'; sha256='0d7c6d15567977d4db3588dac7bea14dbcbf0be0c17fe55998aff9727faae549' ;; \
-# arm32v7
-                armhf) tarArch='armv7l'; dirArch='armv7l'; sha256='eb14c84517656978c775488c80ef511d112e59119faf5484c32bee504b06f763' ;; \
+		amd64) tarArch='x86_64'; dirArch='x64'; sha256='be7af676f8474afce098861275d28a0eb8a4ece3f83a11027e3554dcdecddb91' ;; \
 # arm64v8
-                arm64) tarArch='aarch64'; dirArch='aarch64'; sha256='800a9172830ee89bc9c6bbb6d11b49400d51a116e7c2fc2a62c285d8b854cb8e' ;; \
+		arm64) tarArch='aarch64'; dirArch='aarch64'; sha256='6c6f1d3b6d16829e1ecc0528bb8bb15f9fe90b03fcee99509a3fe625cac32c51' ;; \
 # i386
-                i386) tarArch='i686'; dirArch='x86'; sha256='609bf5945a6512c72ed2b60751b56b91ca086dd9092b06ce4b0ce9eaa46fd27e' ;; \
-                *) echo >&2 "error: current architecture ($dpkgArch) does not have a corresponding Julia binary release"; exit 1 ;; \
+		i386) tarArch='i686'; dirArch='x86'; sha256='dafefde1fb1387730d804c7b4bb29c904311f0a52b12bf44c0c4ed4af6ae58e6' ;; \
+		*) echo >&2 "error: current architecture ($dpkgArch) does not have a corresponding Julia binary release"; exit 1 ;; \
 	esac; \
 	\
 	folder="$(echo "$JULIA_VERSION" | cut -d. -f1-2)"; \
@@ -69,7 +69,12 @@ RUN set -eux; \
 # smoke test
 	julia --version
 
-RUN julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add IJulia     ;precompile");using IJulia'
+
+RUN julia -e 'using Pkg; Pkg.update()' && \
+    julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add IJulia           ;precompile"); using IJulia' && \
+    julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add Plots            ;precompile"); using Plots' && \
+    julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add DataFrames       ;precompile"); using DataFrames' && \
+    julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add CSV              ;precompile"); using CSV'
 RUN pip3 install jupyter
 
 EXPOSE 8888
