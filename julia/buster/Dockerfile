@@ -1,9 +1,12 @@
-FROM julia:buster AS base
+# first stage
+FROM julia:buster AS basejulia
 
-FROM python:slim
-COPY --from=base /usr/local/julia /usr/local
+RUN julia -e 'using Pkg; Pkg.update()' && \
+    julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add IJulia           ;precompile"); using IJulia' && \
+    julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add Plots            ;precompile"); using Plots' && \
+    julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add DataFrames       ;precompile"); using DataFrames' && \
+    julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add CSV              ;precompile"); using CSV'
 
-#ENV PATH=/usr/local/julia:$PATH
 RUN set -eux; \
    apt-get update; \
    apt-get install -y --no-install-recommends \
@@ -13,13 +16,15 @@ RUN set -eux; \
    ; \
    rm -rf /var/lib/apt/lists/*
 
-RUN julia -e 'using Pkg; Pkg.update()' && \
-    julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add IJulia           ;precompile"); using IJulia' && \
-    julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add Plots            ;precompile"); using Plots' && \
-    julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add DataFrames       ;precompile"); using DataFrames' && \
-    julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add CSV              ;precompile"); using CSV'
+# second stage
+FROM python:slim
+# copy julia bin and dependencies from the 1st stage image
+COPY --from=basejulia /usr/local/julia /usr/local
+COPY --from=basejulia /root/.julia /root
 
-RUN pip3 install jupyter
+COPY requirements.txt .
+# install dependencies to the local user directory (eg. /root/.local)
+RUN pip install -r requirements.txt
 
 EXPOSE 8888
 
