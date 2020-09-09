@@ -18,13 +18,14 @@ RUN set -eux; \
 
 # second stage
 FROM python:slim
+
 # copy julia bin and dependencies from the 1st stage image
 COPY --from=basejulia /usr/local/julia /usr/local
 COPY --from=basejulia /root/.julia /root
 
 COPY requirements.txt .
 # install dependencies to the local user directory (eg. /root/.local)
-RUN pip install -r requirements.txt
+RUN pip install --user -r requirements.txt
 
 EXPOSE 8888
 
