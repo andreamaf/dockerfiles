@@ -1,5 +1,7 @@
 # first stage
-FROM julia:buster AS basejulia
+FROM julia:alpine AS basejulia
+
+RUN apk add libzmq zeromq-dev
 
 RUN julia -e 'using Pkg; Pkg.update()' && \
     julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add IJulia           ;precompile"); using IJulia' && \
@@ -8,7 +10,7 @@ RUN julia -e 'using Pkg; Pkg.update()' && \
     julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add CSV              ;precompile"); using CSV'
 
 # second stage
-FROM python:slim
+FROM python:alpine
 
 # copy julia bin and dependencies from the 1st stage image
 COPY --from=basejulia /usr/local/julia /usr/local
