@@ -7,6 +7,15 @@ RUN julia -e 'using Pkg; Pkg.update()' && \
     julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add DataFrames       ;precompile"); using DataFrames' && \
     julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add CSV              ;precompile"); using CSV'
 
+RUN set -eux; \
+   apt-get update; \
+   apt-get install -y --no-install-recommends \
+       ca-certificates \
+# ERROR: no download agent available; install curl, wget, or fetch
+       curl \
+   ; \
+   rm -rf /var/lib/apt/lists/*
+
 # second stage
 FROM python:slim
 
