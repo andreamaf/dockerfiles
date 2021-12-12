@@ -1,5 +1,5 @@
 # first stage
-FROM julia:buster AS basejulia
+FROM julia:bullseye AS basejulia
 
 RUN julia -e 'using Pkg; Pkg.update()' && \
     julia -e 'using Pkg; Pkg.REPLMode.pkgstr("add IJulia           ;precompile"); using IJulia' && \
