@@ -31,7 +31,7 @@ jobs:
             docker-compose --file docker-compose.test.yml build
             docker-compose --file docker-compose.test.yml run sut
           else
-            cd julia/buster
+            cd julia
             docker build . --file Dockerfile
           fi
 
@@ -49,7 +49,7 @@ jobs:
 
       - name: Build image
         run: |
-                cd julia/buster
+                cd julia
                 docker build . --file Dockerfile --tag $IMAGE_NAME
 
       - name: Log into GitHub Container Registry
